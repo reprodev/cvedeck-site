@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark light">
+  <title>Honest vulnerability scan results: partial, stale and unknown · CveDeck</title>
+  <meta name="description" content="Why a CVE scan showing zero findings can mean four different things, and how CveDeck reports partial scans, stale results, never-scanned hosts, failures and unknown exploitation status distinctly.">
+  <link rel="canonical" href="https://cvedeck.com/honest-reporting/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="CveDeck">
+  <meta property="og:title" content="Honest vulnerability scan results: partial, stale and unknown">
+  <meta property="og:description" content="A scan that couldn't check isn't a clean scan. How CveDeck keeps 'no findings' separate from 'didn't find out'.">
+  <meta property="og:url" content="https://cvedeck.com/honest-reporting/">
+  <meta property="og:image" content="https://cvedeck.com/assets/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The CveDeck fleet overview in demo mode, showing a fictional fleet.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="/" aria-label="CveDeck home">
+        <span class="wordmark-cve">cve</span><span class="wordmark-deck">DECK</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="/prioritisation/">Prioritisation</a></li>
+          <li><a href="/honest-reporting/" aria-current="page">Honest reporting</a></li>
+          <li><a href="/distributions/">Distributions</a></li>
+          <li><a href="/self-host/">Self-host</a></li>
+          <li><a href="https://github.com/reprodev/cvedeck">Source</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-head wrap" aria-labelledby="page-title">
+      <p class="eyebrow">Honest reporting</p>
+      <h1 id="page-title">A scan that couldn't check isn't a clean scan</h1>
+      <p class="hero-sub">
+        A scanner's worst failure isn't a crash. It's reporting a clean result it never actually established.
+        CveDeck keeps "no findings" separate from "didn't find out".
+      </p>
+    </section>
+
+    <section class="unit" id="zero" aria-labelledby="zero-title">
+      <div class="wrap unit-body">
+        <div class="unit-head">
+          <span class="unit-no">U1 · The problem</span>
+          <h2 id="zero-title">Four meanings of "0 findings"</h2>
+          <p class="lede">A fleet row reading <code>web-01 · linux · success · 0 0 0 0</code> can mean any of these.
+            Only the first is good news, and CveDeck reports each one distinctly.</p>
+        </div>
+
+        <ol class="records">
+          <li class="record">
+            <span class="stamp">Clean</span>
+            <p><strong>The host is genuinely clean.</strong> Every configured source answered, and nothing matched.</p>
+          </li>
+          <li class="record">
+            <span class="stamp stamp-warn">Partial</span>
+            <p><strong>An advisory source was unreachable during the scan.</strong> The result is marked partial and
+              raises a warning, never shown as clean.</p>
+          </li>
+          <li class="record">
+            <span class="stamp stamp-warn">Stale</span>
+            <p><strong>The host was scanned long ago and nothing has looked since.</strong> Scan age is shown on every
+              host, and scans older than seven days are flagged as stale.</p>
+          </li>
+          <li class="record">
+            <span class="stamp">Never scanned</span>
+            <p><strong>The host was enrolled but never scanned.</strong> It says so, in a neutral state, rather
+              than showing a failure for a connection nobody tried to make.</p>
+          </li>
+        </ol>
+
+        <figure class="shot">
+          <div class="shot-frame">
+            <picture>
+              <source srcset="/assets/img/states-light.webp" media="(prefers-color-scheme: light)">
+              <img src="/assets/img/states-dark.webp" width="1342" height="312" loading="lazy"
+                   alt="Fleet table rows from the demo: nas-01.lan last scanned a month ago, bastion.lan could not connect, dc-01.lan (Windows) never scanned, new-host.lan never scanned, and pi-sensor.lan authentication failed.">
+            </picture>
+          </div>
+          <figcaption>
+            Demo fleet: a stale scan, a failed connection, failed authentication, and two hosts that have never
+            been scanned, one of them a Windows host whose scan button is disabled.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="unit" id="partial" aria-labelledby="partial-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U2 · Partial</span>
+          <h2 id="partial-title">Only real outages count as partial</h2>
+        </div>
+        <div class="prose">
+          <p>Each scan records whether every configured advisory source answered. A failed lookup reaches the
+            matcher as a failure, not as an empty answer, so a source outage can't quietly turn into "no advisories".</p>
+          <p><strong>Only configured sources count.</strong> NVD matching is off by default, and a deployment that
+            hasn't turned it on doesn't get every scan branded partial. That would train people to ignore the
+            warning. When NVD is enabled, a rate-limited request counts as a real outage, so a throttled scan
+            reports partial.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="failures" aria-labelledby="failures-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U3 · Failures</span>
+          <h2 id="failures-title">Failures that tell you what failed</h2>
+        </div>
+        <div class="prose">
+          <p>An unreachable host and a failed login are reported as failures, not as hosts with zero findings. Each
+            failure carries the original error message, so you can tell a wrong password from a rejected key, or a
+            DNS failure from a filtered port.</p>
+          <p>A pre-flight connection test reports reachability, credentials and the OS banner before you commit to
+            a scan.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="unknown" aria-labelledby="unknown-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U4 · Unknown</span>
+          <h2 id="unknown-title">Unenriched is not unexploited</h2>
+        </div>
+        <div class="prose">
+          <p>The same failure mode appears one level down, in threat intelligence. If no usable CISA KEV catalog
+            existed when a finding was recorded, its exploitation status is <strong>unknown</strong>, not "not
+            exploited".</p>
+          <p>Collapsing unknown into "no" would produce the worst available outcome: a dashboard reporting
+            "0 actively exploited" across a whole fleet, on the authority of a catalog that was never downloaded.
+            CveDeck shows a muted dash instead, raises a banner when a feed is stale or unusable, and reports each
+            feed's age through its API.</p>
+          <p><a href="/prioritisation/#three-states">The three exploitation states</a> are explained with the ranking.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="runtime" aria-labelledby="runtime-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U5 · Runtime</span>
+          <h2 id="runtime-title">Installed isn't the same as running</h2>
+        </div>
+        <div class="prose">
+          <p>A host can have every package updated and still be running the vulnerable kernel it booted from. A
+            scanner that only reads the package list reports that host as clean.</p>
+          <p>CveDeck's Linux collector also reads the <strong>running kernel</strong> and the <strong>pending-reboot
+            state</strong>: <code>/var/run/reboot-required</code> on Debian and Ubuntu, <code>needs-restarting -r</code>
+            on the RHEL family. Where a distribution offers no read-only way to ask, the state is recorded as
+            indeterminate rather than guessed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="windows" aria-labelledby="windows-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U6 · Windows</span>
+          <h2 id="windows-title">Refusing a scan rather than faking one</h2>
+        </div>
+        <div class="prose">
+          <p>Windows hosts can be discovered and enrolled, but CveDeck can't yet match Windows software or cumulative
+            updates against vulnerability data. A Windows scan would finish with no findings, which looks exactly
+            like a clean host. So Windows scans are refused, with that reason, and the host stays enrolled and
+            never scanned.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap next">
+      <a href="/distributions/">Next: supported distributions →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <ul>
+        <li><a href="https://github.com/reprodev/cvedeck">Source</a> (AGPL-3.0)</li>
+        <li>Report a vulnerability: <a href="mailto:security@cvedeck.com">security@cvedeck.com</a></li>
+      </ul>
+      <ul>
+        <li>Site code <a href="https://opensource.org/license/mit">MIT</a> · content <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+        <li>Fonts: Archivo and IBM Plex Mono, <a href="/assets/fonts/OFL.txt">SIL OFL</a></li>
+        <li>No cookies, analytics or trackers</li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>

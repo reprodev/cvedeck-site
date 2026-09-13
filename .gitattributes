@@ -1,0 +1,12 @@
+# Git runs hooks through sh even on Windows, so a CRLF shebang breaks every
+# commit and push. The hooks have no .sh suffix, so they are named explicitly.
+*.sh text eol=lf
+.githooks/pre-commit text eol=lf
+.githooks/pre-push text eol=lf
+
+*.html text eol=lf
+*.css text eol=lf
+*.svg text eol=lf
+*.woff2 binary
+*.png binary
+*.webp binary

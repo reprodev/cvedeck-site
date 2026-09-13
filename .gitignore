@@ -1,0 +1,9 @@
+# Real hosts and identifiers the hooks refuse. Local only, never published.
+.githooks/local-denylist
+
+# Editor and OS noise
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store

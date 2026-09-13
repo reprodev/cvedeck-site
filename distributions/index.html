@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark light">
+  <title>Agentless CVE scanning for Debian, Ubuntu, RHEL, Alpine and more · CveDeck</title>
+  <meta name="description" content="Linux distributions CveDeck scans over SSH, how inventory is matched against each distribution's own advisories, and how fixable, pending and cleared findings are separated.">
+  <link rel="canonical" href="https://cvedeck.com/distributions/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="CveDeck">
+  <meta property="og:title" content="Agentless CVE scanning for Debian, Ubuntu, RHEL, Alpine and more">
+  <meta property="og:description" content="Supported Linux distributions, and how CveDeck matches each against its own advisories.">
+  <meta property="og:url" content="https://cvedeck.com/distributions/">
+  <meta property="og:image" content="https://cvedeck.com/assets/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The CveDeck fleet overview in demo mode, showing a fictional fleet.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="/" aria-label="CveDeck home">
+        <span class="wordmark-cve">cve</span><span class="wordmark-deck">DECK</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="/prioritisation/">Prioritisation</a></li>
+          <li><a href="/honest-reporting/">Honest reporting</a></li>
+          <li><a href="/distributions/" aria-current="page">Distributions</a></li>
+          <li><a href="/self-host/">Self-host</a></li>
+          <li><a href="https://github.com/reprodev/cvedeck">Source</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-head wrap" aria-labelledby="page-title">
+      <p class="eyebrow">Distributions</p>
+      <h1 id="page-title">The Linux distributions people actually run</h1>
+      <p class="hero-sub">
+        CveDeck connects over SSH, reads the package inventory, and matches it against advisories for that
+        distribution and release. Nothing is installed on the host.
+      </p>
+    </section>
+
+    <section class="unit" id="supported" aria-labelledby="supported-title">
+      <div class="wrap unit-body">
+        <div class="unit-head">
+          <span class="unit-no">U1 · Supported</span>
+          <h2 id="supported-title">Inventory parsing and advisory matching</h2>
+        </div>
+
+        <ul class="stamp-list" aria-label="Supported distributions">
+          <li><span class="stamp">Debian</span></li>
+          <li><span class="stamp">Ubuntu</span></li>
+          <li><span class="stamp">Raspbian</span></li>
+          <li><span class="stamp">RHEL</span></li>
+          <li><span class="stamp">CentOS</span></li>
+          <li><span class="stamp">AlmaLinux</span></li>
+          <li><span class="stamp">Rocky Linux</span></li>
+          <li><span class="stamp">Oracle Linux</span></li>
+          <li><span class="stamp">Amazon Linux</span></li>
+          <li><span class="stamp">Fedora</span></li>
+          <li><span class="stamp">Alpine</span></li>
+          <li><span class="stamp">Arch</span></li>
+          <li><span class="stamp">openSUSE</span></li>
+          <li><span class="stamp">SLES</span></li>
+          <li><span class="stamp">Wolfi</span></li>
+          <li><span class="stamp">Chainguard</span></li>
+        </ul>
+
+        <div class="prose">
+          <p>A distribution without its own <a href="https://osv.dev">OSV.dev</a> tracker is matched against the
+            upstream it derives from. An unrecognised Linux system is queried against every Linux ecosystem CveDeck
+            knows, rather than guessing at a single answer.</p>
+          <p><strong>Windows hosts can't be scanned.</strong> They can be discovered and enrolled, but scans are
+            refused, because Windows inventory can't be matched against vulnerability data yet.
+            <a href="/honest-reporting/#windows">Why it refuses rather than guesses</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="matching" aria-labelledby="matching-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U2 · Matching</span>
+          <h2 id="matching-title">Matched against the right advisories</h2>
+        </div>
+        <div class="prose">
+          <ul>
+            <li><strong>Release-specific.</strong> The distribution and release come from the host's
+              <code>/etc/os-release</code>. An Ubuntu host is checked against Ubuntu's tracker for its release, so a
+              Debian fix version never shows up on an Ubuntu machine just because both use <code>.deb</code>.</li>
+            <li><strong>Binary and source package names.</strong> Libraries often install under a different name
+              from their source package, such as <code>libssl3</code> from <code>openssl</code>. Both names are
+              checked, so those findings aren't missed.</li>
+            <li><strong>No borrowed fixes.</strong> When one advisory covers several related packages, a fix version
+              published for one package is never assigned to another.</li>
+            <li><strong>Epoch-aware versions.</strong> Debian and RPM version epochs (the <code>2:</code> in
+              <code>2:1.2.3-1</code>) are handled, so advisories match whether or not they include one.</li>
+            <li><strong>One record per CVE.</strong> An advisory that resolves several CVEs at once becomes a
+              separate finding for each, so every CVE can be traced.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="fixable" aria-labelledby="fixable-title">
+      <div class="wrap unit-body">
+        <div class="unit-head">
+          <span class="unit-no">U3 · Remediation</span>
+          <h2 id="fixable-title">What you can actually fix</h2>
+          <p class="lede">Flagging a CVE that has no patch in the host's repository just produces an upgrade that
+            upgrades nothing. CveDeck splits findings three ways.</p>
+        </div>
+
+        <ul class="records">
+          <li class="record">
+            <span class="stamp stamp-rank">Patch available</span>
+            <p>The target's repository has a fixed build. CveDeck shows the fixed version and generates the upgrade
+              command for that host's package manager (<code>apt</code>, <code>dnf</code>, <code>apk</code>,
+              <code>pacman</code> or <code>zypper</code>), plus one script covering every fixable package on the host.</p>
+          </li>
+          <li class="record">
+            <span class="stamp">Pending vendor patch</span>
+            <p>The vendor has acknowledged the CVE but hasn't released a fixed build yet. No upgrade command is offered.</p>
+          </li>
+          <li class="record">
+            <span class="stamp">Cleared</span>
+            <p>The installed version is at or above the fixed version. The finding clears on the next scan.</p>
+          </li>
+        </ul>
+
+        <div class="prose">
+          <p><strong>Commands are generated for you to review and run. CveDeck never executes anything on a
+            target.</strong> A dependency explorer shows which installed applications rely on a package, so a
+            removal doesn't take a service down with it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="collector" aria-labelledby="collector-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U4 · Collection</span>
+          <h2 id="collector-title">Read-only, over SSH</h2>
+        </div>
+        <div class="prose">
+          <ul>
+            <li>Authenticates with a password or an Ed25519, ECDSA or RSA key. Keys sent with a request are parsed in
+              memory and never written to disk.</li>
+            <li>Runs read-only commands only, so a dedicated unprivileged account works, with no sudo and no write
+              access.</li>
+            <li>Also reads the running kernel and pending-reboot state, so a patched host still running an old kernel
+              isn't reported as clean.</li>
+            <li>Subnet discovery sweeps (ICMP, TCP connect and unauthenticated SSH, HTTP and SMB banner reads) find
+              hosts to enrol, and send no credentials.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap next">
+      <a href="/self-host/">Next: self-host CveDeck →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <ul>
+        <li><a href="https://github.com/reprodev/cvedeck">Source</a> (AGPL-3.0)</li>
+        <li>Report a vulnerability: <a href="mailto:security@cvedeck.com">security@cvedeck.com</a></li>
+      </ul>
+      <ul>
+        <li>Site code <a href="https://opensource.org/license/mit">MIT</a> · content <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+        <li>Fonts: Archivo and IBM Plex Mono, <a href="/assets/fonts/OFL.txt">SIL OFL</a></li>
+        <li>No cookies, analytics or trackers</li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>

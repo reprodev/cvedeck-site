@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark light">
+  <title>Self-host CveDeck with Docker: demo mode, install and security · CveDeck</title>
+  <meta name="description" content="Run CveDeck on your own infrastructure: try demo mode with a fictional fleet, install with Docker or systemd, keep CISA KEV and EPSS feeds fresh, and deploy it safely.">
+  <link rel="canonical" href="https://cvedeck.com/self-host/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="CveDeck">
+  <meta property="og:title" content="Self-host CveDeck with Docker: demo mode, install and security">
+  <meta property="og:description" content="One container, one port, one data directory, and a demo mode with a fictional fleet.">
+  <meta property="og:url" content="https://cvedeck.com/self-host/">
+  <meta property="og:image" content="https://cvedeck.com/assets/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The CveDeck fleet overview in demo mode, showing a fictional fleet.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="/" aria-label="CveDeck home">
+        <span class="wordmark-cve">cve</span><span class="wordmark-deck">DECK</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="/prioritisation/">Prioritisation</a></li>
+          <li><a href="/honest-reporting/">Honest reporting</a></li>
+          <li><a href="/distributions/">Distributions</a></li>
+          <li><a href="/self-host/" aria-current="page">Self-host</a></li>
+          <li><a href="https://github.com/reprodev/cvedeck">Source</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-head wrap" aria-labelledby="page-title">
+      <p class="eyebrow">Self-host</p>
+      <h1 id="page-title">Runs on your infrastructure</h1>
+      <p class="hero-sub">
+        One container serves the API and the dashboard on a single port, with the database in a directory you
+        mount. The dashboard loads no third-party fonts, scripts or analytics.
+      </p>
+    </section>
+
+    <section class="unit" id="security" aria-labelledby="security-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U0 · Read first</span>
+          <h2 id="security-title">Security notes</h2>
+        </div>
+        <div class="prose">
+          <ul>
+            <li><strong>There is no authentication on any endpoint.</strong> Anyone who can reach the port can read
+              every finding and start scans. Don't publish the port to the internet. Keep it on an internal network,
+              or behind a reverse proxy that enforces authentication and TLS.</li>
+            <li><strong>Scan credentials travel to the service.</strong> They're held in memory for the request and
+              never written to the database or logs. Use TLS end to end if scan requests cross an untrusted network.</li>
+            <li><strong>SSH host keys are accepted automatically.</strong> There is no host-key verification, so only
+              scan over networks where you accept that risk.</li>
+            <li><strong>Use least privilege.</strong> The collector only runs read-only commands, so give it its own
+              unprivileged account on each target, with no sudo.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="demo" aria-labelledby="demo-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U1 · Demo</span>
+          <h2 id="demo-title">Try it with demo data</h2>
+          <p class="lede">Demo mode seeds a fictional twelve-host fleet into an empty database and refuses every
+            route that reaches the network: scans, discovery sweeps and connection tests. Leave it off on any
+            instance you actually scan with.</p>
+        </div>
+        <div class="code">
+<pre><code><span class="c"># build from source, then run on localhost only</span>
+git clone https://github.com/reprodev/cvedeck
+cd cvedeck
+docker build -t cvedeck .
+docker run -d --name cvedeck-demo \
+  -p 127.0.0.1:3325:8000 \
+  -e CVEDECK_DEMO_MODE=true \
+  cvedeck</code></pre>
+        </div>
+        <p class="note">Then open <code>http://localhost:3325</code>.</p>
+      </div>
+    </section>
+
+    <section class="unit" id="install" aria-labelledby="install-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U2 · Install</span>
+          <h2 id="install-title">Scan your own fleet</h2>
+        </div>
+
+        <div class="split">
+          <div class="panel">
+            <h3>Docker</h3>
+            <p>Mount a data directory. The database is written there and survives container replacement.</p>
+            <div class="code">
+<pre><code>docker run -d --name cvedeck \
+  -p 127.0.0.1:3325:8000 \
+  -v /srv/cvedeck:/data \
+  -e PUID="$(id -u)" -e PGID="$(id -g)" \
+  --restart unless-stopped \
+  cvedeck</code></pre>
+            </div>
+            <p class="note">Then add hosts by address, such as <code>192.168.1.50</code>, or sweep a subnet such as
+              <code>192.0.2.0/24</code> to find hosts to enrol.</p>
+          </div>
+
+          <div class="panel">
+            <h3>Docker Compose</h3>
+            <p>From a checkout, copy the example environment file and set the host port, data directory and user IDs.
+              The port defaults to <code>3325</code>.</p>
+            <div class="code">
+<pre><code>cp .env.example .env
+docker compose up -d</code></pre>
+            </div>
+
+            <h3 class="panel-gap">Native Linux (systemd)</h3>
+            <p>For hosts without Docker. Needs Python 3.11 or later, plus Node and npm to build the dashboard. The
+              service binds to <code>127.0.0.1:8000</code> only, ready for a TLS reverse proxy, and the installer adds a
+              daily feed-refresh timer.</p>
+            <div class="code">
+<pre><code>git clone https://github.com/reprodev/cvedeck
+cd cvedeck
+sudo ./deploy/install.sh</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="feeds" aria-labelledby="feeds-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U3 · Intel</span>
+          <h2 id="feeds-title">Keep threat intel fresh</h2>
+          <p class="lede">The CISA KEV and FIRST EPSS feeds are refreshed on request, and there is no scheduler in the
+            app yet. Both publish daily, so a daily refresh is enough. With Docker, add a cron entry on the host.</p>
+        </div>
+        <div class="code">
+<pre><code><span class="c"># refresh daily at 03:17</span>
+17 3 * * * curl -fsS -X POST http://localhost:3325/api/feeds/refresh &gt;/dev/null
+
+<span class="c"># check each feed's age, record count and staleness</span>
+curl -fsS http://localhost:3325/api/feeds</code></pre>
+        </div>
+        <p class="note">Refreshed intel applies to findings at their host's next scan.
+          <a href="/prioritisation/#feeds">How the feeds are used</a>.</p>
+      </div>
+    </section>
+
+    <section class="unit" id="operating" aria-labelledby="operating-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U4 · Operating</span>
+          <h2 id="operating-title">Running it day to day</h2>
+        </div>
+        <div class="prose">
+          <ul>
+            <li><strong>Network access.</strong> Outbound TCP 22 to your Linux targets, and HTTPS to the data sources:
+              OSV.dev, CISA and FIRST, plus NVD if you enable it. For air-gapped networks, point the feed URLs at an
+              internal mirror, for example <code>https://mirror.example.com/</code>.</li>
+            <li><strong>Reverse proxies.</strong> Scans run within the request and respond only when the whole batch
+              finishes. Raise your proxy's read timeout to several minutes, or multi-host scans get cut off.</li>
+            <li><strong>SSH keys.</strong> For repeat fleet scans, mount a dedicated key read-only and point
+              <code>CVEDECK_DEFAULT_SSH_KEY_PATH</code> and <code>CVEDECK_DEFAULT_SSH_USER</code> at it. The key file
+              is re-read on every scan, so rotating it needs no restart.</li>
+            <li><strong>Backups.</strong> With SQLite, everything lives in one file, <code>cvedeck.db</code>, in the
+              data directory. Stop the container and copy it. PostgreSQL is supported through
+              <code>CVEDECK_DB_URL</code>.</li>
+            <li><strong>Upgrades.</strong> The schema migrates forward automatically on start. Back up first, and
+              check <code>/api/health</code>, which reports the running version.</li>
+          </ul>
+          <p>The full deployment guide, including every setting, is in the
+            <a href="https://github.com/reprodev/cvedeck">repository</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap next">
+      <a href="/">Back to the overview →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <ul>
+        <li><a href="https://github.com/reprodev/cvedeck">Source</a> (AGPL-3.0)</li>
+        <li>Report a vulnerability: <a href="mailto:security@cvedeck.com">security@cvedeck.com</a></li>
+      </ul>
+      <ul>
+        <li>Site code <a href="https://opensource.org/license/mit">MIT</a> · content <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+        <li>Fonts: Archivo and IBM Plex Mono, <a href="/assets/fonts/OFL.txt">SIL OFL</a></li>
+        <li>No cookies, analytics or trackers</li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>

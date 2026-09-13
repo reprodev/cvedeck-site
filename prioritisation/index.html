@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark light">
+  <title>CVE prioritisation with CISA KEV, FIRST EPSS and CVSS · CveDeck</title>
+  <meta name="description" content="How CveDeck ranks vulnerability findings: CISA Known Exploited Vulnerabilities first, then FIRST EPSS exploitation probability, then CVSS severity, with unchecked status shown as unknown.">
+  <link rel="canonical" href="https://cvedeck.com/prioritisation/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="CveDeck">
+  <meta property="og:title" content="CVE prioritisation with CISA KEV, FIRST EPSS and CVSS">
+  <meta property="og:description" content="Exploitation first, severity second: how CveDeck ranks a Linux fleet's findings.">
+  <meta property="og:url" content="https://cvedeck.com/prioritisation/">
+  <meta property="og:image" content="https://cvedeck.com/assets/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The CveDeck fleet overview in demo mode, showing a fictional fleet.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="/" aria-label="CveDeck home">
+        <span class="wordmark-cve">cve</span><span class="wordmark-deck">DECK</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="/prioritisation/" aria-current="page">Prioritisation</a></li>
+          <li><a href="/honest-reporting/">Honest reporting</a></li>
+          <li><a href="/distributions/">Distributions</a></li>
+          <li><a href="/self-host/">Self-host</a></li>
+          <li><a href="https://github.com/reprodev/cvedeck">Source</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-head wrap" aria-labelledby="page-title">
+      <p class="eyebrow">Prioritisation</p>
+      <h1 id="page-title">Exploitation first, severity second</h1>
+      <p class="hero-sub">
+        A fleet of thirty hosts can easily produce several hundred High and Critical findings. Sorted by
+        CVSS alone, nothing tells you which few matter this week. CveDeck ranks every finding by three
+        signals, in a fixed order.
+      </p>
+    </section>
+
+    <section class="unit" id="order" aria-labelledby="order-title">
+      <div class="wrap unit-body">
+        <div class="unit-head">
+          <span class="unit-no">U1 · The order</span>
+          <h2 id="order-title">KEV, then EPSS, then CVSS</h2>
+          <p class="lede">CVSS says how bad a vulnerability would be if exploited. KEV says whether it is being
+            exploited right now. EPSS says how likely that is to start. Both the fleet list and the findings
+            table use this order by default.</p>
+        </div>
+
+        <ol class="records">
+          <li class="record">
+            <span class="stamp stamp-exploit"><span class="rank-no">1</span>CISA KEV</span>
+            <p><strong>Is it being exploited right now?</strong> The US Cybersecurity and Infrastructure
+              Security Agency's catalog lists CVEs with confirmed exploitation in the wild. Findings on it come
+              first, shown with the federal remediation due date.</p>
+          </li>
+          <li class="record">
+            <span class="stamp stamp-rank"><span class="rank-no">2</span>FIRST EPSS</span>
+            <p><strong>How likely is exploitation to start?</strong> The Exploit Prediction Scoring System
+              gives each published CVE a modelled probability of exploitation in the next 30 days. CveDeck shows
+              the score and its percentile.</p>
+          </li>
+          <li class="record">
+            <span class="stamp stamp-severity"><span class="rank-no">3</span>CVSS</span>
+            <p><strong>How bad would it be if exploited?</strong> The CVSS score comes after KEV and EPSS in
+              the sort order. It still counts, but it no longer buries an exploited Medium under a Critical
+              nobody has touched.</p>
+          </li>
+        </ol>
+
+        <div class="prose">
+          <p>In practice, <strong>a CVSS 6.5 that CISA lists as actively exploited outranks a CVSS 9.8 that
+            nobody has touched</strong>, because what is happening beats what could happen.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="percentile" aria-labelledby="percentile-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U2 · EPSS</span>
+          <h2 id="percentile-title">Why the percentile matters as much as the score</h2>
+        </div>
+        <div class="prose">
+          <p>EPSS scores are heavily skewed. The overwhelming majority of CVEs score below 0.01, so an absolute
+            score that looks negligible can still rank above most of the corpus. A rank reads correctly where a
+            raw probability misleads, so CveDeck displays both.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="three-states" aria-labelledby="states-title">
+      <div class="wrap unit-body">
+        <div class="unit-head">
+          <span class="unit-no">U3 · States</span>
+          <h2 id="states-title">Three exploitation states, never two</h2>
+          <p class="lede">"Not on the list" and "never checked" look identical in most tools. They are not the same
+            answer, so CveDeck keeps them apart at every layer, from the database to the screen.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col">State</th><th scope="col">Meaning</th><th scope="col">Shown as</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="stamp stamp-exploit">Listed</span></td><td>On CISA's Known Exploited Vulnerabilities catalog.</td><td>Exploited</td></tr>
+              <tr><td><span class="stamp">Not listed</span></td><td>Checked against a usable catalog, and genuinely absent.</td><td>Not on KEV</td></tr>
+              <tr><td><span class="stamp stamp-unknown">Unknown</span></td><td>Not checked: no usable catalog existed when the finding was recorded.</td><td>A muted dash, never a zero</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose">
+          <p>A zero is an assertion; a dash is the honest absence of one. When no feed has ever loaded, the fleet's
+            "Actively exploited" card reads "no exploit data loaded" rather than "0". See
+            <a href="/honest-reporting/">honest reporting</a> for the same rule applied to scan results.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit" id="feeds" aria-labelledby="feeds-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">U4 · Feeds</span>
+          <h2 id="feeds-title">Where the data comes from</h2>
+        </div>
+        <div class="prose">
+          <p>The two kinds of data are fetched differently, on purpose.</p>
+          <ul>
+            <li><strong>Package advisories are queried during a scan.</strong> Package-level matching uses
+              <a href="https://osv.dev">OSV.dev</a>, which carries distribution trackers such as Ubuntu's and
+              Debian's. OS-level matching against <a href="https://nvd.nist.gov">NIST NVD</a> is available but
+              off by default, because NVD's rate limits make an unkeyed fleet scan slow.</li>
+            <li><strong>Exploitation data is downloaded whole and cached.</strong>
+              <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog">CISA KEV</a> and
+              <a href="https://www.first.org/epss/">FIRST EPSS</a> each publish a complete file daily. CveDeck
+              downloads them once and joins them offline, so enrichment adds no network dependency to a scan.</li>
+          </ul>
+
+          <h3>When a refresh fails</h3>
+          <ul>
+            <li><strong>A failed refresh never empties a good cache.</strong> Yesterday's answer beats no
+              answer, and an empty catalog returned as a success is treated as a failure.</li>
+            <li><strong>Staleness is reported, not hidden.</strong> A feed's last-refreshed time only moves on
+              success, and the dashboard shows a banner when a feed is stale or unusable.</li>
+            <li><strong>Refreshes are triggered outside the app.</strong> CveDeck has no scheduler yet: use a
+              daily cron job, or the systemd timer the native installer sets up.</li>
+            <li><strong>New intel applies at the next scan.</strong> Refreshing the feeds updates the cache;
+              existing findings pick up the new signals when their host is scanned again.</li>
+          </ul>
+
+          <p>CveDeck isn't affiliated with OSV.dev, NVD, CISA or FIRST. On this site, red marks exploitation and
+            nothing else.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap next">
+      <a href="/honest-reporting/">Next: honest reporting →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <ul>
+        <li><a href="https://github.com/reprodev/cvedeck">Source</a> (AGPL-3.0)</li>
+        <li>Report a vulnerability: <a href="mailto:security@cvedeck.com">security@cvedeck.com</a></li>
+      </ul>
+      <ul>
+        <li>Site code <a href="https://opensource.org/license/mit">MIT</a> · content <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+        <li>Fonts: Archivo and IBM Plex Mono, <a href="/assets/fonts/OFL.txt">SIL OFL</a></li>
+        <li>No cookies, analytics or trackers</li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>

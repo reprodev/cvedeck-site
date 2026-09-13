@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark light">
+  <title>CveDeck: agentless CVE scanning for Linux fleets</title>
+  <meta name="description" content="Self-hosted, agentless CVE scanning and remediation for Linux hosts over SSH. Findings ranked by CISA KEV, then FIRST EPSS, then CVSS, and a scan that couldn't check says so. AGPL-3.0.">
+  <link rel="canonical" href="https://cvedeck.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CveDeck">
+  <meta property="og:title" content="CveDeck: agentless CVE scanning for Linux fleets">
+  <meta property="og:description" content="Self-hosted, agentless CVE scanning for Linux hosts over SSH, ranked by what is being exploited.">
+  <meta property="og:url" content="https://cvedeck.com/">
+  <meta property="og:image" content="https://cvedeck.com/assets/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The CveDeck fleet overview in demo mode, showing a fictional fleet.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CveDeck",
+    "url": "https://cvedeck.com/",
+    "description": "Self-hosted, agentless CVE scanning and fleet remediation for Linux hosts over SSH, ranking findings by CISA KEV, then FIRST EPSS, then CVSS.",
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "Linux",
+    "license": "https://www.gnu.org/licenses/agpl-3.0.html",
+    "codeRepository": "https://github.com/reprodev/cvedeck",
+    "isAccessibleForFree": true
+  }
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="/" aria-label="CveDeck home">
+        <span class="wordmark-cve">cve</span><span class="wordmark-deck">DECK</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="/prioritisation/">Prioritisation</a></li>
+          <li><a href="/honest-reporting/">Honest reporting</a></li>
+          <li><a href="/distributions/">Distributions</a></li>
+          <li><a href="/self-host/">Self-host</a></li>
+          <li><a href="https://github.com/reprodev/cvedeck">Source</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <p class="eyebrow">Self-hosted · Agentless · AGPL-3.0</p>
+      <h1 id="hero-title">Agentless CVE scanning and fleet remediation for Linux hosts, over SSH.</h1>
+      <p class="hero-sub">
+        Findings are ranked by what is being exploited, not just by what scores highest.
+        When CveDeck doesn't know something, it tells you it doesn't know.
+      </p>
+      <div class="actions">
+        <a class="btn" href="/self-host/#demo">Try the demo locally</a>
+        <a class="btn btn-secondary" href="https://github.com/reprodev/cvedeck">View the source</a>
+      </div>
+
+      <figure class="shot">
+        <div class="shot-frame">
+          <picture>
+            <source srcset="/assets/img/fleet-light.webp" media="(prefers-color-scheme: light)">
+            <img src="/assets/img/fleet-dark.webp" width="1440" height="860"
+                 alt="The CveDeck fleet overview in demo mode: triage cards for exploited, critical and high findings and hosts needing attention, above a table of fictional hosts such as app-alma.lan and db-primary.lan.">
+          </picture>
+        </div>
+        <figcaption>
+          Demo mode, with a fictional fleet and scanning disabled. The intel feeds were never loaded in
+          this instance, so the dashboard says so, and the exploitation column shows a dash, not a zero.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="unit" aria-labelledby="explore-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">Index</span>
+          <h2 id="explore-title">How it works</h2>
+        </div>
+
+        <ul class="cards">
+          <li>
+            <a class="card-link" href="/prioritisation/">
+              <span class="stamp stamp-rank">KEV → EPSS → CVSS</span>
+              <h3>Prioritisation</h3>
+              <span>Known exploitation outranks theoretical severity, so a fleet's hundreds of Highs sort into the few that matter this week.</span>
+              <span class="card-more">How findings are ranked</span>
+            </a>
+          </li>
+          <li>
+            <a class="card-link" href="/honest-reporting/">
+              <span class="stamp stamp-warn">Partial</span>
+              <h3>Honest reporting</h3>
+              <span>A scan whose data source failed is partial, never clean. Unchecked exploitation status is unknown, never "not exploited".</span>
+              <span class="card-more">What a result really means</span>
+            </a>
+          </li>
+          <li>
+            <a class="card-link" href="/distributions/">
+              <span class="stamp">Linux over SSH</span>
+              <h3>Distributions</h3>
+              <span>Debian, Ubuntu, RHEL and derivatives, Alpine, openSUSE and more, matched against each distribution's own advisories.</span>
+              <span class="card-more">Supported distributions</span>
+            </a>
+          </li>
+          <li>
+            <a class="card-link" href="/self-host/">
+              <span class="stamp">Self-hosted</span>
+              <h3>Self-host</h3>
+              <span>One container, one port, one data directory. Includes a demo mode with a fictional fleet and scanning disabled.</span>
+              <span class="card-more">Run it yourself</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="unit" aria-labelledby="limits-title">
+      <div class="wrap">
+        <div class="unit-head">
+          <span class="unit-no">Scope</span>
+          <h2 id="limits-title">Limits, stated plainly</h2>
+        </div>
+        <div class="split">
+          <div class="panel">
+            <h3>Linux only</h3>
+            <p>Windows hosts can be discovered and enrolled, but scans are refused, because Windows inventory
+              can't be matched against vulnerability data yet. A scan would finish with no findings, and that
+              would look like a clean host.</p>
+          </div>
+          <div class="panel">
+            <h3>You stay in control</h3>
+            <p>CveDeck never runs commands on your hosts. Upgrade commands are generated for you to review, and
+              there are no scheduled scans or automated remediation.</p>
+          </div>
+          <div class="panel">
+            <h3>No built-in authentication</h3>
+            <p>Keep it on a trusted network, or behind a reverse proxy with access control and TLS.
+              <a href="/self-host/#security">Read the security notes</a>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <ul>
+        <li><a href="https://github.com/reprodev/cvedeck">Source</a> (AGPL-3.0)</li>
+        <li>Report a vulnerability: <a href="mailto:security@cvedeck.com">security@cvedeck.com</a></li>
+      </ul>
+      <ul>
+        <li>Site code <a href="https://opensource.org/license/mit">MIT</a> · content <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+        <li>Fonts: Archivo and IBM Plex Mono, <a href="/assets/fonts/OFL.txt">SIL OFL</a></li>
+        <li>No cookies, analytics or trackers</li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>

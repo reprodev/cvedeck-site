@@ -1,0 +1,6 @@
+Contact: mailto:security@cvedeck.com
+Contact: https://github.com/reprodev/cvedeck/security/advisories/new
+Expires: 2027-09-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://cvedeck.com/.well-known/security.txt
+Policy: https://github.com/reprodev/cvedeck/blob/main/SECURITY.md
