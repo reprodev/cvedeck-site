@@ -49,7 +49,8 @@ Then open <http://127.0.0.1:8000/>.
 
 Site code is MIT, and written text and images are CC BY 4.0. The CveDeck name
 and logo aren't covered, the fonts stay under the SIL OFL, and the application
-itself is AGPL-3.0. See [LICENSE](LICENSE).
+itself is AGPL-3.0. See [LICENSE](LICENSE) for the MIT text and
+[LICENSE-CONTENT](LICENSE-CONTENT) for the content licence and exclusions.
 
 ## security.txt
 

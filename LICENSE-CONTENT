@@ -1,0 +1,26 @@
+Licensing for this repository
+=============================
+
+Site code (HTML, CSS, SVG and configuration files) is licensed under the MIT
+License. See LICENSE.
+
+Site content (written text and images) is licensed under the Creative Commons
+Attribution 4.0 International License (CC BY 4.0):
+
+  Copyright (c) 2026 reprodev
+
+  You may share and adapt the text and images for any purpose, provided you
+  give appropriate credit ("CveDeck, https://cvedeck.com"), link to the
+  licence, and indicate if changes were made.
+
+  Full legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+
+Not covered by either licence:
+
+  - The CveDeck name and logo. These identify the project and may not be used
+    in a way that suggests endorsement or affiliation.
+  - The fonts in assets/fonts/ (Archivo and IBM Plex Mono), which are licensed
+    under the SIL Open Font License 1.1. See assets/fonts/OFL.txt.
+  - The CveDeck application itself, which is licensed separately under the
+    GNU Affero General Public License v3.0 at
+    https://github.com/reprodev/cvedeck.
