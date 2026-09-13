@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="dark light">
   <title>Self-host CveDeck with Docker: demo mode, install and security · CveDeck</title>
@@ -22,6 +22,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/site.css">
+  <script src="/assets/copy.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -152,12 +153,13 @@ sudo ./deploy/install.sh</code></pre>
           <p class="lede">The CISA KEV and FIRST EPSS feeds are refreshed on request, and there is no scheduler in the
             app yet. Both publish daily, so a daily refresh is enough. With Docker, add a cron entry on the host.</p>
         </div>
+        <p class="note">Crontab entry (<code>crontab -e</code>), refreshing daily at 03:17:</p>
         <div class="code">
-<pre><code><span class="c"># refresh daily at 03:17</span>
-17 3 * * * curl -fsS -X POST http://localhost:3325/api/feeds/refresh &gt;/dev/null
-
-<span class="c"># check each feed's age, record count and staleness</span>
-curl -fsS http://localhost:3325/api/feeds</code></pre>
+<pre><code>17 3 * * * curl -fsS -X POST http://localhost:3325/api/feeds/refresh &gt;/dev/null</code></pre>
+        </div>
+        <p class="note">Check each feed's age, record count and staleness:</p>
+        <div class="code">
+<pre><code>curl -fsS http://localhost:3325/api/feeds</code></pre>
         </div>
         <p class="note">Refreshed intel applies to findings at their host's next scan.
           <a href="/prioritisation/#feeds">How the feeds are used</a>.</p>

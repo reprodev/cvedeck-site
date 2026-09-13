@@ -3,8 +3,9 @@
 The static site behind [cvedeck.com](https://cvedeck.com). The application
 itself lives at [reprodev/cvedeck](https://github.com/reprodev/cvedeck).
 
-Plain HTML and CSS, no build step and no JavaScript. Served by GitHub Pages from
-`main`.
+Plain HTML and CSS with no build step. The only JavaScript is
+`assets/copy.js`, which adds copy buttons to code blocks. Served by GitHub Pages
+from `main`.
 
 | Path | Page |
 | --- | --- |
@@ -28,6 +29,11 @@ DEPLOYMENT.md or docs/SCANNING_PROVENANCE_AND_METHODOLOGY.md.
 - **No third-party requests.** Fonts are vendored in `assets/fonts/` (SIL OFL,
   licence alongside), and every page carries a Content-Security-Policy that
   allows only same-origin styles, fonts and images.
+- **JavaScript only where it earns its place.** A page with `.code` blocks loads
+  `/assets/copy.js` and adds `script-src 'self'` to its CSP. Other pages allow
+  no script at all. The script creates the buttons itself, so without
+  JavaScript the page simply has no buttons. No inline scripts, and nothing
+  from another origin.
 - **Screenshots come from demo mode only** (`CVEDECK_DEMO_MODE=true`, a
   fictional `*.lan` fleet). Never from a real dashboard: hostnames inside an
   image can't be caught by any text check.
