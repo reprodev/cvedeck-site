@@ -156,28 +156,17 @@ code, pre, kbd { font-family: var(--font-mono); }
   padding-block: var(--space-4);
 }
 
-/* The wordmark echoes the app: "cve" set plain, "DECK" stamped as a label. */
+/* The app's logo (assets/img/logo-*.svg, copied from the app repo's
+   docs/assets/): the icon tile, "cve", and "DECK" stamped as a label. The light
+   and dark files swap with the OS theme through <picture>. */
 .wordmark {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  color: var(--text);
-  text-decoration: none;
-  font-size: 1.35rem;
-  line-height: 1;
+  line-height: 0;
 }
-.wordmark:hover { color: var(--text); }
-.wordmark-cve { font-weight: 500; letter-spacing: -0.01em; }
-.wordmark-deck {
-  font-stretch: 125%;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  padding: 0.3rem 0.55rem 0.25rem;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  background: var(--surface);
-  border-radius: 1px;
-  color: var(--text-muted);
+.wordmark img {
+  height: 36px;
+  width: auto;
 }
 
 .site-nav ul {

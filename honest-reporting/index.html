@@ -28,8 +28,11 @@
 
   <header class="site-header">
     <div class="wrap">
-      <a class="wordmark" href="/" aria-label="CveDeck home">
-        <span class="wordmark-cve">cve</span><span class="wordmark-deck">DECK</span>
+      <a class="wordmark" href="/">
+        <picture>
+          <source srcset="/assets/img/logo-light.svg" media="(prefers-color-scheme: light)">
+          <img src="/assets/img/logo-dark.svg" alt="CveDeck home" width="181" height="36">
+        </picture>
       </a>
       <nav class="site-nav" aria-label="Main">
         <ul>
@@ -124,7 +127,7 @@
           <h2 id="failures-title">Failures that tell you what failed</h2>
         </div>
         <div class="prose">
-          <p>An unreachable host and a failed login are reported as failures, not as hosts with zero findings. Each
+          <p>An unreachable host and failed SSH authentication are reported as failures, not as hosts with zero findings. Each
             failure carries the original error message, so you can tell a wrong password from a rejected key, or a
             DNS failure from a filtered port.</p>
           <p>A pre-flight connection test reports reachability, credentials and the OS banner before you commit to
@@ -149,6 +152,20 @@
             feed's age through its API.</p>
           <p><a href="/prioritisation/#three-states">The three exploitation states</a> are explained with the ranking.</p>
         </div>
+
+        <figure class="shot">
+          <div class="shot-frame">
+            <picture>
+              <source srcset="/assets/img/nointel-light.webp" media="(prefers-color-scheme: light)">
+              <img src="/assets/img/nointel-dark.webp" width="1342" height="190" loading="lazy"
+                   alt="A warning that threat intelligence has never been loaded and findings are ranked by CVSS only, with a Refresh intel button. Below it, the Actively exploited card shows a dash and no exploit data loaded, beside counts of critical and high findings.">
+            </picture>
+          </div>
+          <figcaption>
+            A demo instance before its feeds were downloaded. The dashboard says intel has never been loaded, and the
+            Actively exploited card shows a dash rather than a count.
+          </figcaption>
+        </figure>
       </div>
     </section>
 

@@ -36,7 +36,12 @@ DEPLOYMENT.md or docs/SCANNING_PROVENANCE_AND_METHODOLOGY.md.
   from another origin.
 - **Screenshots come from demo mode only** (`CVEDECK_DEMO_MODE=true`, a
   fictional `*.lan` fleet). Never from a real dashboard: hostnames inside an
-  image can't be caught by any text check.
+  image can't be caught by any text check. The current set was taken from the
+  published 0.7.1 image on localhost, before and after **Refresh intel**, and
+  checked by eye before cropping.
+- **The logo** in `assets/img/logo-*.svg` is copied unchanged from the app
+  repo's `docs/assets/`, and `favicon.svg` is its icon tile. Neither is covered
+  by the site licences (see LICENSE-CONTENT).
 - **Placeholders only:** `192.168.1.50`, `192.0.2.0/24` (RFC 5737),
   `example.com`.
 - **Copy doesn't overclaim.** Linux over SSH only. Windows hosts can be

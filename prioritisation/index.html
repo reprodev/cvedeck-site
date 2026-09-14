@@ -28,8 +28,11 @@
 
   <header class="site-header">
     <div class="wrap">
-      <a class="wordmark" href="/" aria-label="CveDeck home">
-        <span class="wordmark-cve">cve</span><span class="wordmark-deck">DECK</span>
+      <a class="wordmark" href="/">
+        <picture>
+          <source srcset="/assets/img/logo-light.svg" media="(prefers-color-scheme: light)">
+          <img src="/assets/img/logo-dark.svg" alt="CveDeck home" width="181" height="36">
+        </picture>
       </a>
       <nav class="site-nav" aria-label="Main">
         <ul>
@@ -89,6 +92,20 @@
           <p>In practice, <strong>a CVSS 6.5 that CISA lists as actively exploited outranks a CVSS 9.8 that
             nobody has touched</strong>, because what is happening beats what could happen.</p>
         </div>
+
+        <figure class="shot">
+          <div class="shot-frame">
+            <picture>
+              <source srcset="/assets/img/host-light.webp" media="(prefers-color-scheme: light)">
+              <img src="/assets/img/host-dark.webp" width="1440" height="1230" loading="lazy"
+                   alt="A demo host's findings sorted by exploitation risk. Four findings marked Exploited, each with its EPSS probability, come first, including a High with CVSS 7.5. Below them come findings marked Not on KEV, including Criticals with CVSS 9.8.">
+            </picture>
+          </div>
+          <figcaption>
+            Findings for the demo host web-01.lan (fictional data). The four on CISA KEV come first, ordered by EPSS,
+            so an exploited High scoring 7.5 sits above Criticals scoring 9.8 that aren't on the list.
+          </figcaption>
+        </figure>
       </div>
     </section>
 
@@ -129,8 +146,8 @@
         </div>
 
         <div class="prose">
-          <p>A zero is an assertion; a dash is the honest absence of one. When no feed has ever loaded, the fleet's
-            "Actively exploited" card reads "no exploit data loaded" rather than "0". See
+          <p>A zero is an assertion; a dash is the honest absence of one. When no usable feed is loaded, the fleet's
+            "Actively exploited" card shows a dash and "no exploit data loaded", not a count. See
             <a href="/honest-reporting/">honest reporting</a> for the same rule applied to scan results.</p>
         </div>
       </div>

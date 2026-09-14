@@ -7,7 +7,7 @@
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="dark light">
   <title>Self-host CveDeck with Docker: demo mode, install and security · CveDeck</title>
-  <meta name="description" content="Run CveDeck on your own infrastructure: try demo mode with a fictional fleet, install with Docker or systemd, keep CISA KEV and EPSS feeds fresh, and deploy it safely.">
+  <meta name="description" content="Run CveDeck on your own infrastructure: try demo mode with a fictional fleet, install the published Docker image or use systemd, set up login and API tokens, keep CISA KEV and EPSS feeds fresh, and deploy it safely.">
   <link rel="canonical" href="https://cvedeck.com/self-host/">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="CveDeck">
@@ -29,8 +29,11 @@
 
   <header class="site-header">
     <div class="wrap">
-      <a class="wordmark" href="/" aria-label="CveDeck home">
-        <span class="wordmark-cve">cve</span><span class="wordmark-deck">DECK</span>
+      <a class="wordmark" href="/">
+        <picture>
+          <source srcset="/assets/img/logo-light.svg" media="(prefers-color-scheme: light)">
+          <img src="/assets/img/logo-dark.svg" alt="CveDeck home" width="181" height="36">
+        </picture>
       </a>
       <nav class="site-nav" aria-label="Main">
         <ul>
@@ -49,8 +52,8 @@
       <p class="eyebrow">Self-host</p>
       <h1 id="page-title">Runs on your infrastructure</h1>
       <p class="hero-sub">
-        One container serves the API and the dashboard on a single port, with the database in a directory you
-        mount. The dashboard loads no third-party fonts, scripts or analytics.
+        One published container image serves the API and the dashboard on a single port, with the database in a
+        directory you mount and login built in. The dashboard loads no third-party fonts, scripts or analytics.
       </p>
     </section>
 
@@ -62,15 +65,22 @@
         </div>
         <div class="prose">
           <ul>
-            <li><strong>There is no authentication on any endpoint.</strong> Anyone who can reach the port can read
-              every finding and start scans. Don't publish the port to the internet. Keep it on an internal network,
-              or behind a reverse proxy that enforces authentication and TLS.</li>
-            <li><strong>Scan credentials travel to the service.</strong> They're held in memory for the request and
-              never written to the database or logs. Use TLS end to end if scan requests cross an untrusted network.</li>
-            <li><strong>SSH host keys are accepted automatically.</strong> There is no host-key verification, so only
+            <li><strong>Login is on from the first start.</strong> There's no default password. A new instance prints
+              a one-time setup code to its log, and creating the account needs it, so whoever reaches the instance
+              first can't claim it without also being able to read its logs. Repeated failed sign-ins are slowed
+              down, up to 15 minutes between attempts.</li>
+            <li><strong>One account, no roles.</strong> Anyone signed in, and any API token, can scan, sweep subnets
+              and edit remediation records. Tokens can't change the password or manage other tokens.</li>
+            <li><strong>Plain HTTP exposes credentials.</strong> CveDeck doesn't serve HTTPS itself. Over HTTP, the
+              password, the session cookie and the SSH credentials you scan with all cross the network readable, so
+              put a TLS reverse proxy in front before exposing it beyond a network you trust.</li>
+            <li><strong>SSH host keys are accepted on first use.</strong> There's no host-key verification, so only
               scan over networks where you accept that risk.</li>
             <li><strong>Use least privilege.</strong> The collector only runs read-only commands, so give it its own
               unprivileged account on each target, with no sudo.</li>
+            <li><strong>Login can be turned off,</strong> with <code>CVEDECK_AUTH=disabled</code>, for instances that
+              already sit behind something that authenticates people, such as Authelia, Authentik or oauth2-proxy.
+              Everything is then open to anyone who can reach the port.</li>
           </ul>
         </div>
       </div>
@@ -86,16 +96,13 @@
             instance you actually scan with.</p>
         </div>
         <div class="code">
-<pre><code><span class="c"># build from source, then run on localhost only</span>
-git clone https://github.com/reprodev/cvedeck
-cd cvedeck
-docker build -t cvedeck .
-docker run -d --name cvedeck-demo \
+<pre><code>docker run -d --name cvedeck-demo \
   -p 127.0.0.1:3325:8000 \
   -e CVEDECK_DEMO_MODE=true \
-  cvedeck</code></pre>
+  ghcr.io/reprodev/cvedeck:latest</code></pre>
         </div>
-        <p class="note">Then open <code>http://localhost:3325</code>.</p>
+        <p class="note">Then open <code>http://localhost:3325</code>. Demo mode needs no login. The threat-intel feeds
+          start empty, so press <strong>Refresh intel</strong> to download them and see the ranking.</p>
       </div>
     </section>
 
@@ -116,10 +123,18 @@ docker run -d --name cvedeck-demo \
   -v /srv/cvedeck:/data \
   -e PUID="$(id -u)" -e PGID="$(id -g)" \
   --restart unless-stopped \
-  cvedeck</code></pre>
+  ghcr.io/reprodev/cvedeck:latest</code></pre>
             </div>
+            <p class="note">On first start there's no account. Get the one-time setup code from the log:</p>
+            <div class="code">
+<pre><code>docker logs cvedeck</code></pre>
+            </div>
+            <p class="note">Open <code>http://localhost:3325</code>, enter the code, and choose a username and a password
+              of at least 12 characters. To create the account from configuration instead, set
+              <code>CVEDECK_ADMIN_USERNAME</code> and <code>CVEDECK_ADMIN_PASSWORD_FILE</code>.</p>
             <p class="note">Then add hosts by address, such as <code>192.168.1.50</code>, or sweep a subnet such as
-              <code>192.0.2.0/24</code> to find hosts to enrol.</p>
+              <code>192.0.2.0/24</code> to find hosts to enrol. To build the image from source instead, run
+              <code>docker build -t cvedeck .</code> in a checkout and use <code>cvedeck</code> as the image name.</p>
           </div>
 
           <div class="panel">
@@ -128,8 +143,10 @@ docker run -d --name cvedeck-demo \
               The port defaults to <code>3325</code>.</p>
             <div class="code">
 <pre><code>cp .env.example .env
-docker compose up -d</code></pre>
+docker compose up -d
+docker compose logs</code></pre>
             </div>
+            <p class="note">The last command shows the one-time setup code for creating the account.</p>
 
             <h3 class="panel-gap">Native Linux (systemd)</h3>
             <p>For hosts without Docker. Needs Python 3.11 or later, plus Node and npm to build the dashboard. The
@@ -139,6 +156,10 @@ docker compose up -d</code></pre>
 <pre><code>git clone https://github.com/reprodev/cvedeck
 cd cvedeck
 sudo ./deploy/install.sh</code></pre>
+            </div>
+            <p class="note">Find the setup code in the service log:</p>
+            <div class="code">
+<pre><code>journalctl -u cvedeck | grep -A4 'no account yet'</code></pre>
             </div>
           </div>
         </div>
@@ -151,15 +172,19 @@ sudo ./deploy/install.sh</code></pre>
           <span class="unit-no">U3 · Intel</span>
           <h2 id="feeds-title">Keep threat intel fresh</h2>
           <p class="lede">The CISA KEV and FIRST EPSS feeds are refreshed on request, and there is no scheduler in the
-            app yet. Both publish daily, so a daily refresh is enough. With Docker, add a cron entry on the host.</p>
+            app yet. Both publish daily, so a daily refresh is enough. The systemd install sets up a daily timer for
+            you. With Docker, add a cron entry on the host.</p>
         </div>
-        <p class="note">Crontab entry (<code>crontab -e</code>), refreshing daily at 03:17:</p>
+        <p class="note">Crontab entry (<code>crontab -e</code>), refreshing daily at 03:17. It runs inside the container,
+          so it needs no API token. If you set a different <code>PUID</code>/<code>PGID</code>, use those in place of
+          <code>1000:1000</code> here and below.</p>
         <div class="code">
-<pre><code>17 3 * * * curl -fsS -X POST http://localhost:3325/api/feeds/refresh &gt;/dev/null</code></pre>
+<pre><code>17 3 * * * docker exec --user 1000:1000 cvedeck cvedeck-admin refresh-feeds &gt;/dev/null</code></pre>
         </div>
-        <p class="note">Check each feed's age, record count and staleness:</p>
+        <p class="note">Check each feed's age, record count and staleness. The API needs a token, created under
+          <strong>Settings</strong> in the dashboard:</p>
         <div class="code">
-<pre><code>curl -fsS http://localhost:3325/api/feeds</code></pre>
+<pre><code>curl -fsS -H "Authorization: Bearer $CVEDECK_TOKEN" http://localhost:3325/api/feeds</code></pre>
         </div>
         <p class="note">Refreshed intel applies to findings at their host's next scan.
           <a href="/prioritisation/#feeds">How the feeds are used</a>.</p>
@@ -177,16 +202,26 @@ sudo ./deploy/install.sh</code></pre>
             <li><strong>Network access.</strong> Outbound TCP 22 to your Linux targets, and HTTPS to the data sources:
               OSV.dev, CISA and FIRST, plus NVD if you enable it. For air-gapped networks, point the feed URLs at an
               internal mirror, for example <code>https://mirror.example.com/</code>.</li>
+            <li><strong>API tokens.</strong> Scripts authenticate with tokens created under <strong>Settings</strong>,
+              sent as <code>Authorization: Bearer</code>. A token is shown once, stored only as a hash, and stops
+              working as soon as you revoke it.</li>
+            <li><strong>Locked out.</strong> Reset the password from the host with
+              <code>docker exec -it --user 1000:1000 cvedeck cvedeck-admin reset-password</code>. It also signs out
+              every session.</li>
             <li><strong>Reverse proxies.</strong> Scans run within the request and respond only when the whole batch
-              finishes. Raise your proxy's read timeout to several minutes, or multi-host scans get cut off.</li>
+              finishes, so raise your proxy's read timeout to several minutes. Pass the original <code>Host</code>
+              header through. For a proxy in another container, set <code>FORWARDED_ALLOW_IPS</code> to its address
+              or <code>CVEDECK_COOKIE_SECURE=true</code>.</li>
             <li><strong>SSH keys.</strong> For repeat fleet scans, mount a dedicated key read-only and point
               <code>CVEDECK_DEFAULT_SSH_KEY_PATH</code> and <code>CVEDECK_DEFAULT_SSH_USER</code> at it. The key file
               is re-read on every scan, so rotating it needs no restart.</li>
             <li><strong>Backups.</strong> With SQLite, everything lives in one file, <code>cvedeck.db</code>, in the
               data directory. Stop the container and copy it. PostgreSQL is supported through
               <code>CVEDECK_DB_URL</code>.</li>
-            <li><strong>Upgrades.</strong> The schema migrates forward automatically on start. Back up first, and
-              check <code>/api/health</code>, which reports the running version.</li>
+            <li><strong>Upgrades.</strong> Pull the new image and recreate the container. The schema migrates forward
+              automatically on start. Back up first, and check <code>/api/health</code>, which reports the running
+              version. Upgrading from 0.6.0 or earlier prints a setup code on the first start, and your fleet and
+              findings are untouched.</li>
           </ul>
           <p>The full deployment guide, including every setting, is in the
             <a href="https://github.com/reprodev/cvedeck">repository</a>.</p>
